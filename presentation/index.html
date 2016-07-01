@@ -1,0 +1,308 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<style type="text/css">
+		  .reveal h1,
+		  .reveal h2,
+		  .reveal h3,
+		  .reveal h4,
+		  .reveal h5,
+		  .reveal h6 {
+		    text-transform: none;
+		  }
+		</style>
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<section>
+					<h2>Kotlin + DataBinding を使った RecyclerView の実装</h2>
+					<p><a href="http://connpass.com/event/33769/">第3回Kotlin勉強会 ＠ Sansan</a></p>
+					<p><a href="https://twitter.com/jumpersons">@jumpersons</a></p>
+				</section>
+
+				<section>
+					<h2>自己紹介</h2>
+					<ul>
+						<li>株式会社カカクコム	でアプリエンジニア</li>
+						<li>以前はWebエンジニア(.NET)</li>
+						<li>2015年5月よりiOSエンジニア</li>
+						<li>2016年5月よりAndroidエンジニア</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>最初に教えてもらったこと</h2>
+					<ul>
+						<li>ListViewよりRecyclerViewがいいよ。</li>
+						<li>DataBindingが便利だからMVVMがいいよ。</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Kotlin良い</h2>
+
+					<p>
+						RecyclerView + DataBinding で実装したら<br>
+						Kotlinで書いて良かったと思えた。<br>
+						(Javaだと辛そう。。。)<br>
+						Kotlinでどのように実装し、<br>
+						どのように良かったご紹介。
+					</p>
+				</section>
+
+				<section>
+					<h2>こういう画面求められませんか？</h2>
+					<p>リスト表示だけどViewが微妙に違う。</p>
+					<img data-src="./img/1.png" height="800">
+				</section>
+
+				<section>
+					<h2>実装の方針</h2>
+					<ul>
+						<li>Viewのレイアウトはそれぞれ定義</li>
+						<li>ReyclerViewを使う</li>
+						<li>データはフラットに持つ</li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+					<h2>Viewのレイアウトはそれぞれ定義</h2>
+		
+					<img data-src="./img/2.png" height="400">
+					</section>
+					<section>
+					<img data-src="./img/1.png" height="800">
+					</section>
+				</section>
+
+				</section>
+
+				<section>
+					<h2>データはこのような構造で持つ</h2>
+					<pre><code class="kotlin" data-trim contenteditable>
+    sealed class ListItem {
+        abstract fun getType(): Type
+
+        enum class Type(val id: Int) {
+            Caption(10), SubCaption(20), Category(30);
+            companion object {
+                fun from(id: Int): Type {
+                    return values().first { it.id == id }
+                }
+            }
+        }
+
+        class CaptionItem(val title: String): ListItem() {
+            override fun getType(): Type { return Type.Caption }
+        }
+
+        class SubCaptionItem(val title: String): ListItem() {
+            override fun getType(): Type { return Type.SubCaption }
+        }
+
+        class CategoyItem(val title: String): ListItem() {
+            override fun getType(): Type { return Type.Category }
+        }
+    }
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>RecyclerViewAdapter</h2>
+					<h3>主要なメソッド</h3>
+					<ul>
+						<li>
+							データの数を返す
+							<pre><code class="kotlin">fun getItemCount()</code></pre>
+						</li>
+
+						<li>
+							Viewの種類をIntで返す
+							<pre><code class="kotlin">fun getItemViewType(position: Int): Int</code></pre>
+						</li>
+
+						<li>
+							ViewHolderを返す(postion: Int がない)
+							<pre><code class="kotlin">fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder? </code></pre>
+						</li>
+
+						<li>
+							Viewにデータをバインドする
+							<pre><code class="kotlin">fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int)</code></pre>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+
+					<section>
+						<h2>RecyclerViewAdapter実装</h2>
+						<h3>constructor</h3>
+						<p>sealed classのListでデータを持つ</p>
+						<pre><code class="kotlin" data-trim contenteditable width="100%">
+	class CategoryListRecyclerViewAdapter
+	    (private var items: List&lt;CategoryListViewModel.ListItem&gt;)
+	    : RecyclerView.Adapter&lt;RecyclerView.ViewHolder&gt;() {}
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>RecyclerViewAdapter実装</h2>
+						<h3>fun getItemCount</h3>
+						<p>フラットなリストで持っているので返すだけ</p>
+						<pre><code class="kotlin" data-trim contenteditable>
+	override fun getItemCount() = items.count()
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>RecyclerViewAdapter実装</h2>
+						<h3>fun getItemViewType</h3>
+						<p>enumのidを返す</p>
+						<pre><code class="kotlin" data-trim contenteditable>
+	    override fun getItemViewType(position: Int): Int {
+	        val item = items[position]
+	        return item.getType().id
+	    }
+	    					</code></pre>
+					</section>
+
+					<section>
+						<h2>RecyclerViewAdapter実装</h2>
+						<h3>fun onCreateViewHolder</h3>
+						<p>enum毎にViewHolderを返す</p>
+						<pre><code class="kotlin" data-trim contenteditable>
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder? {
+        parent ?: return null
+
+        val itemType = CategoryListViewModel.ListItem.Type.from(viewType)
+        when (itemType) {
+            CategoryListViewModel.ListItem.Type.Caption -> {
+                val binding = CaptionItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return CaptionItemViewHolder(binding)
+            }
+
+            CategoryListViewModel.ListItem.Type.SubCaption -> {
+                val binding = SubCaptionItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return SubCaptionItemViewHolder(binding)
+            }
+
+            CategoryListViewModel.ListItem.Type.Category -> {
+                val binding = CategoryItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return CategoryItemViewHolder(binding)
+            }
+
+        }
+    }
+    					</code></pre>
+					</section>
+
+					<section>
+						<h2>RecyclerViewAdapter実装</h2>
+						<p>ViewHolderはこんな感じ</p>
+						<pre><code class="kotlin" data-trim contenteditable>
+private class CaptionItemViewHolder
+    (val binding: CaptionItemBinding)
+    : RecyclerView.ViewHolder(binding.root) { }
+private class SubCaptionItemViewHolder
+    (val binding: SubCaptionItemBinding)
+    : RecyclerView.ViewHolder(binding.root) { }
+private class CategoryItemViewHolder
+    (val binding: CategoryItemBinding)
+    : RecyclerView.ViewHolder(binding.root) { }
+
+    					</code></pre>
+					</section>
+
+					<section>
+						<h2>RecyclerViewAdapter実装</h2>
+						<h3>fun onBindViewHolder</h3>
+						<p>ViewHolderとデータをCastしてデータをバインド</p>
+						<pre><code class="kotlin" data-trim contenteditable>
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+
+        val item = items[position]
+
+        when {
+            holder is CaptionItemViewHolder && item is CategoryListViewModel.ListItem.CaptionItem -> {
+                @Suppress("MISSING_DEPENDENCY_CLASS")
+                holder.binding.item = item
+            }
+
+            holder is SubCaptionItemViewHolder && item is CategoryListViewModel.ListItem.SubCaptionItem -> {
+                @Suppress("MISSING_DEPENDENCY_CLASS")
+                holder.binding.item = item
+            }
+
+            holder is CategoryItemViewHolder && item is CategoryListViewModel.ListItem.CategoyItem -> {
+                @Suppress("MISSING_DEPENDENCY_CLASS")
+                holder.binding.item = item
+            }
+
+        }
+    					</code></pre>
+					</section>
+
+				</section>
+
+				<section>
+					<h2>良かったところ</h2>
+					<ul>
+						<li>ViewTypeのInt管理がsealed classの宣言のところでまとめられ見通しが良い</li>
+						<li>Viewの種類が増える場合はパターンマッチの網羅チェックがかかる</li>
+						<li>RecyclerViewの作り上Castは仕方ないがKotlinはCastが優秀なので実装しやすい</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>残念だったところ</h2>
+					<ul>
+						<li>enumで一意の値を持てない</li>
+						<li>onBindViewHolderでViewHolderとデータのキャストが必要で網羅チェックができない</li>
+					</ul>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
