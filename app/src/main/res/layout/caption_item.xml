@@ -2,8 +2,8 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable
-            name="title"
-            type="String" />
+            name="item"
+            type="com.hoge.kotlin_sansan_20160701.viewmodel.CategoryListViewModel.ListItem.CaptionItem" />
     </data>
 
     <LinearLayout
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="16dp"
-            android:text="@{title}"
+            android:text="@{item.title}"
             android:textSize="18dp"
             android:textColor="#000000"
             />

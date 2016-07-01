@@ -45,17 +45,17 @@ class CategoryListRecyclerViewAdapter(private var items: List<CategoryListViewMo
         when {
             holder is CaptionItemViewHolder && item is CategoryListViewModel.ListItem.CaptionItem -> {
                 @Suppress("MISSING_DEPENDENCY_CLASS")
-                holder.binding.title = item.title
+                holder.binding.item = item
             }
 
             holder is SubCaptionItemViewHolder && item is CategoryListViewModel.ListItem.SubCaptionItem -> {
                 @Suppress("MISSING_DEPENDENCY_CLASS")
-                holder.binding.title = item.title
+                holder.binding.item = item
             }
 
             holder is CategoryItemViewHolder && item is CategoryListViewModel.ListItem.CategoyItem -> {
                 @Suppress("MISSING_DEPENDENCY_CLASS")
-                holder.binding.title = item.title
+                holder.binding.item = item
             }
 
         }
