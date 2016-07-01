@@ -39,7 +39,7 @@ class CategoryListViewModel {
 
     )
 
-    sealed abstract  class ListItem {
+    sealed class ListItem {
         abstract fun getType(): Type
 
         enum class Type(val id: Int) {
