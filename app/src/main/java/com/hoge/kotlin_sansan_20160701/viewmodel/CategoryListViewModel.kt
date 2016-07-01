@@ -13,7 +13,30 @@ class CategoryListViewModel {
             ListItem.CategoyItem("プラズマテレビ"),
             ListItem.CategoyItem("液晶保護フィルム"),
             ListItem.CategoyItem("テレビリモコン"),
+            ListItem.CategoyItem("テレビオプション"),
+            ListItem.CaptionItem("AV・情報家電"),
+            ListItem.SubCaptionItem("映像関連"),
+            ListItem.CategoyItem("液晶テレビ"),
+            ListItem.CategoyItem("プラズマテレビ"),
+            ListItem.CategoyItem("液晶保護フィルム"),
+            ListItem.CategoyItem("テレビリモコン"),
+            ListItem.CategoyItem("テレビオプション"),
+            ListItem.CaptionItem("AV・情報家電"),
+            ListItem.SubCaptionItem("映像関連"),
+            ListItem.CategoyItem("液晶テレビ"),
+            ListItem.CategoyItem("プラズマテレビ"),
+            ListItem.CategoyItem("液晶保護フィルム"),
+            ListItem.CategoyItem("テレビリモコン"),
+            ListItem.CategoyItem("テレビオプション"),
+            ListItem.CaptionItem("AV・情報家電"),
+            ListItem.SubCaptionItem("映像関連"),
+            ListItem.CategoyItem("液晶テレビ"),
+            ListItem.CategoyItem("プラズマテレビ"),
+            ListItem.CategoyItem("液晶保護フィルム"),
+            ListItem.CategoyItem("テレビリモコン"),
             ListItem.CategoyItem("テレビオプション")
+
+
     )
 
     sealed abstract  class ListItem {
